@@ -187,6 +187,7 @@
         },
         methods: {
             layoutUpdate() {
+                console.log('layoutUpdate');
                 if (this.layout !== undefined) {
                     if (this.layout.length !== this.lastLayoutLength) {
                         //console.log("### LAYOUT UPDATE!");
@@ -198,20 +199,24 @@
                 }
             },
             updateHeight: function () {
+                console.log('updateHeight');
                 this.mergedStyle = {
                     height: this.containerHeight()
                 };
             },
             onWindowResize: function () {
+                console.log('onWindowResize');
                 if (this.$refs !== null && this.$refs.item !== null && this.$refs.item !== undefined) {
                     this.width = this.$refs.item.offsetWidth;
                 }
             },
             containerHeight: function () {
+                console.log('containerHeight');
                 if (!this.autoSize) return;
                 return bottom(this.layout) * (this.rowHeight + this.margin[1]) + this.margin[1] + 'px';
             },
             dragEvent: function (eventName, id, x, y, h, w) {
+                console.log('dragEvent');
                 if (eventName === "dragmove" || eventName === "dragstart") {
                     this.placeholder.i = id;
                     this.placeholder.x = x;
@@ -245,6 +250,7 @@
                 if (eventName === 'dragend') this.$emit('layout-updated', this.layout);
             },
             resizeEvent: function (eventName, id, x, y, h, w) {
+                console.log('resizeEvent');
                 if (eventName === "resizestart" || eventName === "resizemove") {
                     this.placeholder.i = id;
                     this.placeholder.x = x;

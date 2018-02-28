@@ -390,6 +390,7 @@
         },
         methods: {
             createStyle: function () {
+                console.log('createStyle');
                 if (this.x + this.w > this.cols) {
                     this.x = 0;
                     this.w = this.cols;
@@ -433,6 +434,7 @@
 
             },
             handleResize: function (event) {
+                console.log('handleResize');
                 const position = getControlPosition(event);
                 // Get the current drag point from the event. This is used as the offset.
                 if (position == null) return; // not possible but satisfies flow
@@ -507,6 +509,7 @@
                 this.eventBus.$emit("resizeEvent", event.type, this.i, this.x, this.y, pos.h, pos.w);
             },
             handleDrag(event) {
+                console.log('handleDrag');
                 if (this.isResizing) return;
 
                 const position = getControlPosition(event);
@@ -585,6 +588,7 @@
                 this.eventBus.$emit("dragEvent", event.type, this.i, pos.x, pos.y, this.h, this.w);
             },
             calcPosition: function (x, y, w, h) {
+                console.log('calcPosition');
                 const colWidth = this.calcColWidth();
                 // add rtl support
                 if (this.renderRtl) {
@@ -620,6 +624,7 @@
              */
             // TODO check if this function needs change in order to support rtl.
             calcXY(top, left) {
+                console.log('calcXY');
                 const colWidth = this.calcColWidth();
 
                 // left = colWidth * x + margin * (x + 1)
@@ -640,6 +645,7 @@
             },
             // Helper for generating column width
             calcColWidth() {
+                console.log('calcColWidth');
                 var colWidth = (this.containerWidth - (this.margin[0] * (this.cols + 1))) / this.cols;
 //                console.log("### COLS=" + this.cols + " COL WIDTH=" + colWidth);
                 return colWidth;
@@ -652,6 +658,7 @@
              * @return {Object} w, h as grid units.
              */
             calcWH(height, width) {
+                console.log('calcWH');
                 const colWidth = this.calcColWidth();
 
                 // width = colWidth * w - (margin * (w - 1))
@@ -666,12 +673,14 @@
                 return {w, h};
             },
             updateWidth: function (width, colNum) {
+                console.log('updateWidth');
                 this.containerWidth = width;
                 if (colNum !== undefined && colNum !== null) {
                     this.cols = colNum;
                 }
             },
             compact: function () {
+                console.log('compact');
                 this.createStyle();
             }
         },
