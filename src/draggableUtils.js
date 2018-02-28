@@ -1,11 +1,13 @@
 // Get {x, y} positions from event.
 export function getControlPosition(e) {
+    console.log('getControlPosition');
     return offsetXYFromParentOf(e);
 }
 
 
 // Get from offsetParent
 export function offsetXYFromParentOf(evt) {
+    console.log('offsetXYFromParentOf');
     const offsetParent = evt.target.offsetParent || document.body;
     const offsetParentRect = evt.offsetParent === document.body ? {left: 0, top: 0} : offsetParent.getBoundingClientRect();
 
@@ -22,6 +24,7 @@ export function offsetXYFromParentOf(evt) {
 
 // Create an data object exposed by <DraggableCore>'s events
 export function createCoreData(lastX, lastY, x, y) {
+    console.log('createCoreData');
     // State changes are often (but not always!) async. We want the latest value.
     const isStart = !isNum(lastX);
 
@@ -44,6 +47,7 @@ export function createCoreData(lastX, lastY, x, y) {
 
 
 function isNum(num)  {
+    console.log('isNum');
     return typeof num === 'number' && !isNaN(num);
 }
 
