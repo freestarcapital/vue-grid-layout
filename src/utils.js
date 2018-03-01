@@ -292,7 +292,7 @@ export function moveElementAwayFromCollision(layout: Layout, collidesWith: Layou
 
   // Previously this was optimized to move below the collision directly, but this can cause problems
   // with cascading moves, as an item may actually leapflog a collision and cause a reversal in order.
-  return moveElement(layout, itemToMove, undefined, itemToMove.y + 10);
+  return moveElement(layout, itemToMove, undefined, itemToMove.y + 1);
 }
 
 /**
