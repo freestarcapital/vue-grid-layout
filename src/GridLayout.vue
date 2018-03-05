@@ -76,7 +76,7 @@
             },
             verticalCompact: {
                 type: Boolean,
-                default: true
+                default: false
             },
             layout: {
                 type: Array,
@@ -131,7 +131,7 @@
                         //self.width = self.$el.offsetWidth;
                         window.addEventListener('resize', self.onWindowResize);
                     }
-                    compact(self.layout, self.verticalCompact);
+                    compact(self.layout, self.verticalCompact, this.colNum);
 
                     self.updateHeight();
                     self.$nextTick(function () {
@@ -149,7 +149,7 @@
                         //self.width = self.$el.offsetWidth;
                         window.addEventListener('resize', self.onWindowResize);
                     }
-                    compact(self.layout, self.verticalCompact);
+                    compact(self.layout, self.verticalCompact, self.colNum);
 
                     self.updateHeight();
                     self.$nextTick(function () {
@@ -187,36 +187,31 @@
         },
         methods: {
             layoutUpdate() {
-                console.log('layoutUpdate');
                 if (this.layout !== undefined) {
                     if (this.layout.length !== this.lastLayoutLength) {
                         //console.log("### LAYOUT UPDATE!");
                         this.lastLayoutLength = this.layout.length;
                     }
-                    compact(this.layout, this.verticalCompact);
+                    compact(this.layout, this.verticalCompact, this.colNum);
                     this.eventBus.$emit("updateWidth", this.width);
                     this.updateHeight();
                 }
             },
             updateHeight: function () {
-                console.log('updateHeight');
                 this.mergedStyle = {
                     height: this.containerHeight()
                 };
             },
             onWindowResize: function () {
-                console.log('onWindowResize');
                 if (this.$refs !== null && this.$refs.item !== null && this.$refs.item !== undefined) {
                     this.width = this.$refs.item.offsetWidth;
                 }
             },
             containerHeight: function () {
-                console.log('containerHeight');
                 if (!this.autoSize) return;
                 return bottom(this.layout) * (this.rowHeight + this.margin[1]) + this.margin[1] + 'px';
             },
             dragEvent: function (eventName, id, x, y, h, w) {
-                console.log('dragEvent');
                 if (eventName === "dragmove" || eventName === "dragstart") {
                     this.placeholder.i = id;
                     this.placeholder.x = x;
@@ -243,14 +238,13 @@
                 l.y = y;
                 // Move the element to the dragged location.
                 this.layout = moveElement(this.layout, l, x, y, true);
-                compact(this.layout, this.verticalCompact);
+                compact(this.layout, this.verticalCompact, this.colNum);
                 // needed because vue can't detect changes on array element properties
                 this.eventBus.$emit("compact");
                 this.updateHeight();
                 if (eventName === 'dragend') this.$emit('layout-updated', this.layout);
             },
             resizeEvent: function (eventName, id, x, y, h, w) {
-                console.log('resizeEvent');
                 if (eventName === "resizestart" || eventName === "resizemove") {
                     this.placeholder.i = id;
                     this.placeholder.x = x;
@@ -275,7 +269,7 @@
                 }
                 l.h = h;
                 l.w = w;
-                compact(this.layout, this.verticalCompact);
+                compact(this.layout, this.verticalCompact, this.colNum);
                 this.eventBus.$emit("compact");
                 this.updateHeight();
                 if (eventName === 'resizeend') this.$emit('layout-updated', this.layout);

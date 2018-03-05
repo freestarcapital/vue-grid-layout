@@ -24,7 +24,6 @@ const isProduction = process.env.NODE_ENV === 'production';
  * @return {Number}       Bottom coordinate.
  */
 export function bottom(layout: Layout): number {
-    console.log('bottom');
   let max = 0, bottomY;
   for (let i = 0, len = layout.length; i < len; i++) {
     bottomY = layout[i]. y + layout[i].h;
@@ -34,7 +33,6 @@ export function bottom(layout: Layout): number {
 }
 
 export function cloneLayout(layout: Layout): Layout {
-    console.log('cloneLayout');
   const newLayout = Array(layout.length);
   for (let i = 0, len = layout.length; i < len; i++) {
     newLayout[i] = cloneLayoutItem(layout[i]);
@@ -44,7 +42,6 @@ export function cloneLayout(layout: Layout): Layout {
 
 // Fast path to cloning, since this is monomorphic
 export function cloneLayoutItem(layoutItem: LayoutItem): LayoutItem {
-    console.log('cloneLayoutItem');
   /*return {
     w: layoutItem.w, h: layoutItem.h, x: layoutItem.x, y: layoutItem.y, i: layoutItem.i,
     minW: layoutItem.minW, maxW: layoutItem.maxW, minH: layoutItem.minH, maxH: layoutItem.maxH,
@@ -61,7 +58,6 @@ export function cloneLayoutItem(layoutItem: LayoutItem): LayoutItem {
  * @return {Boolean}   True if colliding.
  */
 export function collides(l1: LayoutItem, l2: LayoutItem): boolean {
-    console.log('collides');
   if (l1 === l2) return false; // same element
   if (l1.x + l1.w <= l2.x) return false; // l1 is left of l2
   if (l1.x >= l2.x + l2.w) return false; // l1 is right of l2
@@ -79,8 +75,7 @@ export function collides(l1: LayoutItem, l2: LayoutItem): boolean {
  *   vertically.
  * @return {Array}       Compacted Layout.
  */
-export function compact(layout: Layout, verticalCompact: Boolean): Layout {
-    console.log('compact');
+export function compact(layout: Layout, verticalCompact: Boolean, cols: number): Layout {
     // Statics go in the compareWith array right away so items flow around them.
   const compareWith = getStatics(layout);
   // We go through the items by row and column.
@@ -93,7 +88,7 @@ export function compact(layout: Layout, verticalCompact: Boolean): Layout {
 
     // Don't move static elements
     if (!l.static) {
-      l = compactItem(compareWith, l, verticalCompact);
+      l = compactItem(compareWith, l, verticalCompact, cols);
 
       // Add to comparison array. We only collide with items before this one.
       // Statics are already in this array.
@@ -113,8 +108,7 @@ export function compact(layout: Layout, verticalCompact: Boolean): Layout {
 /**
  * Compact an item in the layout.
  */
-export function compactItem(compareWith: Layout, l: LayoutItem, verticalCompact: boolean): LayoutItem {
-    console.log('compactItem');
+export function compactItem(compareWith: Layout, l: LayoutItem, verticalCompact: boolean, cols: number): LayoutItem {
   if (verticalCompact) {
     // Move the element up as far as it can go without colliding.
     while (l.y > 0 && !getFirstCollision(compareWith, l)) {
@@ -125,7 +119,15 @@ export function compactItem(compareWith: Layout, l: LayoutItem, verticalCompact:
   // Move it down, and keep moving it down if it's colliding.
   let collides;
   while((collides = getFirstCollision(compareWith, l))) {
-    l.y = collides.y + collides.h;
+      if (collides.x + collides.w + l.w >= cols) {
+          l.x = 0;
+          l.y += 1;
+      } else {
+          console.log('pos', collides.x + collides.w + l.w);
+          console.log('cols', cols);
+          l.x = collides.x + collides.w;
+      }
+    //l.y = collides.y + collides.h;
   }
   return l;
 }
@@ -137,7 +139,6 @@ export function compactItem(compareWith: Layout, l: LayoutItem, verticalCompact:
  * @param  {Number} bounds Number of columns.
  */
 export function correctBounds(layout: Layout, bounds: {cols: number}): Layout {
-    console.log('correctBounds');
   const collidesWith = getStatics(layout);
   for (let i = 0, len = layout.length; i < len; i++) {
     const l = layout[i];
@@ -168,7 +169,6 @@ export function correctBounds(layout: Layout, bounds: {cols: number}): Layout {
  * @return {LayoutItem}    Item at ID.
  */
 export function getLayoutItem(layout: Layout, id: string): ?LayoutItem {
-    console.log('getLayoutItem');
   for (let i = 0, len = layout.length; i < len; i++) {
     if (layout[i].i === id) return layout[i];
   }
@@ -183,14 +183,12 @@ export function getLayoutItem(layout: Layout, id: string): ?LayoutItem {
  * @return {Object|undefined}  A colliding layout item, or undefined.
  */
 export function getFirstCollision(layout: Layout, layoutItem: LayoutItem): ?LayoutItem {
-    console.log('getFirstCollision');
   for (let i = 0, len = layout.length; i < len; i++) {
     if (collides(layout[i], layoutItem)) return layout[i];
   }
 }
 
 export function getAllCollisions(layout: Layout, layoutItem: LayoutItem): Array<LayoutItem> {
-    console.log('getAllCollisions');
   return layout.filter((l) => collides(l, layoutItem));
 }
 
@@ -200,7 +198,6 @@ export function getAllCollisions(layout: Layout, layoutItem: LayoutItem): Array<
  * @return {Array}        Array of static layout items..
  */
 export function getStatics(layout: Layout): Array<LayoutItem> {
-    console.log('getStatics');
     //return [];
     return layout.filter((l) => l.static);
 }
@@ -216,7 +213,6 @@ export function getStatics(layout: Layout): Array<LayoutItem> {
  *                                     being dragged/resized by th euser.
  */
 export function moveElement(layout: Layout, l: LayoutItem, x: Number, y: Number, isUserAction: Boolean): Layout {
-    console.log('moveElement');
   if (l.static) return layout;
 
   // Short-circuit if nothing to do.
@@ -270,8 +266,6 @@ export function moveElement(layout: Layout, l: LayoutItem, x: Number, y: Number,
  */
 export function moveElementAwayFromCollision(layout: Layout, collidesWith: LayoutItem,
                                              itemToMove: LayoutItem, isUserAction: ?boolean): Layout {
-
-    console.log('moveElementAwayFromCollision');
   // If there is enough space above the collision to put this element, move it there.
   // We only do this on the main collision as this can get funky in cascades and cause
   // unwanted swapping behavior.
@@ -285,14 +279,17 @@ export function moveElementAwayFromCollision(layout: Layout, collidesWith: Layou
       i: '-1'
     };
     fakeItem.y = Math.max(collidesWith.y - itemToMove.h, 0);
+    //fakeItem.x = Math.max(collidesWith.x - itemToMove.w, 0);
     if (!getFirstCollision(layout, fakeItem)) {
       return moveElement(layout, itemToMove, undefined, fakeItem.y);
+      //return moveElement(layout, itemToMove, fakeItem.x, undefined);
     }
   }
 
   // Previously this was optimized to move below the collision directly, but this can cause problems
   // with cascading moves, as an item may actually leapflog a collision and cause a reversal in order.
   return moveElement(layout, itemToMove, undefined, itemToMove.y + 1);
+  //return moveElement(layout, itemToMove, itemToMove.x + 1, undefined);
 }
 
 /**
@@ -302,12 +299,10 @@ export function moveElementAwayFromCollision(layout: Layout, collidesWith: Layou
  * @return {String}     That number as a percentage.
  */
 export function perc(num: number): string {
-    console.log('perc');
   return num * 100 + '%';
 }
 
 export function setTransform(top, left, width, height): Object {
-    console.log('setTransform');
   // Replace unitless items with px
   const translate = "translate3d(" + left + "px," + top + "px, 0)";
   return {
@@ -331,7 +326,6 @@ export function setTransform(top, left, width, height): Object {
  * @returns {{transform: string, WebkitTransform: string, MozTransform: string, msTransform: string, OTransform: string, width: string, height: string, position: string}}
  */
 export function setTransformRtl(top, right, width, height): Object {
-    console.log('setTransformRtl');
     // Replace unitless items with px
     const translate = "translate3d(" + right * -1 + "px," + top + "px, 0)";
     return {
@@ -347,7 +341,6 @@ export function setTransformRtl(top, right, width, height): Object {
 }
 
 export function setTopLeft(top, left, width, height): Object {
-    console.log('setTopLeft');
     return {
         top: top + "px",
         left: left + "px",
@@ -366,7 +359,6 @@ export function setTopLeft(top, left, width, height): Object {
  * @returns {{top: string, right: string, width: string, height: string, position: string}}
  */
 export function setTopRight(top, right, width, height): Object {
-    console.log('setTopRight');
     return {
         top: top + "px",
         right: right+ "px",
@@ -384,7 +376,6 @@ export function setTopRight(top, right, width, height): Object {
  * @return {Array}        Layout, sorted static items first.
  */
 export function sortLayoutItemsByRowCol(layout: Layout): Layout {
-    console.log('sortLayoutItemsByRowCol');
   return [].concat(layout).sort(function(a, b) {
     if (a.y > b.y || (a.y === b.y && a.x > b.x)) {
       return 1;
@@ -461,7 +452,6 @@ export function synchronizeLayoutWithChildren(initialLayout: Layout, children: A
  * @throw  {Error}                Validation error.
  */
 export function validateLayout(layout: Layout, contextName: string): void {
-    console.log('validateLayout');
   contextName = contextName || "Layout";
   const subProps = ['x', 'y', 'w', 'h'];
   if (!Array.isArray(layout)) throw new Error(contextName + " must be an array!");
@@ -483,7 +473,6 @@ export function validateLayout(layout: Layout, contextName: string): void {
 
 // Flow can't really figure this out, so we just use Object
 export function autoBindHandlers(el: Object, fns: Array<string>): void {
-    console.log('autoBindHandlers');
   fns.forEach((key) => el[key] = el[key].bind(el));
 }
 
@@ -495,7 +484,6 @@ export function autoBindHandlers(el: Object, fns: Array<string>): void {
  * @returns {string}
  */
 export function createMarkup(obj) {
-    console.log('createMarkup');
     var keys = Object.keys(obj);
     if (!keys.length) return '';
     var i, len = keys.length;
@@ -553,7 +541,6 @@ export var IS_UNITLESS = {
  * @returns {*}
  */
 export function addPx(name, value) {
-    console.log('addPx');
     if(typeof value === 'number' && !IS_UNITLESS[ name ]) {
         return value + 'px';
     } else {
@@ -572,13 +559,11 @@ export function addPx(name, value) {
 export var hyphenateRE = /([a-z\d])([A-Z])/g;
 
 export function hyphenate(str) {
-    console.log('hyphenate');
     return str.replace(hyphenateRE, '$1-$2').toLowerCase();
 }
 
 
 export function findItemInArray(array, property, value) {
-    console.log('findItemInArray');
     for (var i=0; i < array.length; i++)
         if (array[i][property] == value)
             return true;
@@ -587,7 +572,6 @@ export function findItemInArray(array, property, value) {
 }
 
 export function findAndRemove(array, property, value) {
-    console.log('findAndRemove');
     array.forEach(function (result, index) {
         if (result[property] === value) {
             //Remove from array
