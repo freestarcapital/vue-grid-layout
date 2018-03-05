@@ -119,7 +119,7 @@ export function compactItem(compareWith: Layout, l: LayoutItem, verticalCompact:
   // Move it down, and keep moving it down if it's colliding.
   let collides;
   while((collides = getFirstCollision(compareWith, l))) {
-      if (collides.x + collides.w + l.w >= cols) {
+      if (collides.x + collides.w + l.w > cols) {
           l.x = 0;
           l.y += 1;
       } else {
