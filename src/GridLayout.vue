@@ -192,6 +192,7 @@
                         //console.log("### LAYOUT UPDATE!");
                         this.lastLayoutLength = this.layout.length;
                     }
+                    console.log('update compact');
                     compact(this.layout, this.verticalCompact, this.colNum);
                     this.eventBus.$emit("updateWidth", this.width);
                     this.updateHeight();
@@ -238,6 +239,7 @@
                 l.y = y;
                 // Move the element to the dragged location.
                 this.layout = moveElement(this.layout, l, x, y, true);
+                console.log('drag compact');
                 compact(this.layout, this.verticalCompact, this.colNum);
                 // needed because vue can't detect changes on array element properties
                 this.eventBus.$emit("compact");
@@ -269,6 +271,7 @@
                 }
                 l.h = h;
                 l.w = w;
+                console.log('resize compact');
                 compact(this.layout, this.verticalCompact, this.colNum);
                 this.eventBus.$emit("compact");
                 this.updateHeight();
