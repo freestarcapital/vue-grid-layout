@@ -211,9 +211,6 @@ export function getStatics(layout: Layout): Array<LayoutItem> {
  *                                     being dragged/resized by th euser.
  */
 export function moveElement(layout: Layout, l: LayoutItem, x: Number, y: Number, isUserAction: Boolean): Layout {
-    if (l.i === '1') {
-        console.log('moveElement 1');
-    }
   if (l.static) return layout;
 
   // Short-circuit if nothing to do.
