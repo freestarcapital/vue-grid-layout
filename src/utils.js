@@ -75,7 +75,7 @@ export function collides(l1: LayoutItem, l2: LayoutItem): boolean {
  *   vertically.
  * @return {Array}       Compacted Layout.
  */
-export function compact(layout: Layout, verticalCompact: Boolean): Layout {
+export function compact(layout: Layout, verticalCompact: Boolean, cols: number): Layout {
     // Statics go in the compareWith array right away so items flow around them.
   const compareWith = getStatics(layout);
   // We go through the items by row and column.
@@ -88,7 +88,7 @@ export function compact(layout: Layout, verticalCompact: Boolean): Layout {
 
     // Don't move static elements
     if (!l.static) {
-      l = compactItem(compareWith, l, verticalCompact);
+      l = compactItem(compareWith, l, verticalCompact, cols);
 
       // Add to comparison array. We only collide with items before this one.
       // Statics are already in this array.
@@ -108,7 +108,7 @@ export function compact(layout: Layout, verticalCompact: Boolean): Layout {
 /**
  * Compact an item in the layout.
  */
-export function compactItem(compareWith: Layout, l: LayoutItem, verticalCompact: boolean): LayoutItem {
+export function compactItem(compareWith: Layout, l: LayoutItem, verticalCompact: boolean, cols: number): LayoutItem {
   if (verticalCompact) {
     // Move the element up as far as it can go without colliding.
     while (l.y > 0 && !getFirstCollision(compareWith, l)) {
@@ -119,7 +119,13 @@ export function compactItem(compareWith: Layout, l: LayoutItem, verticalCompact:
   // Move it down, and keep moving it down if it's colliding.
   let collides;
   while((collides = getFirstCollision(compareWith, l))) {
-    l.y = collides.y + collides.h;
+      if (collides.x + collides.w + l.w > cols) {
+          l.x = 0;
+          l.y += 1;
+      } else {
+          l.x = collides.x + collides.w;
+      }
+    //l.y = collides.y + collides.h;
   }
   return l;
 }
@@ -210,7 +216,7 @@ export function moveElement(layout: Layout, l: LayoutItem, x: Number, y: Number,
   // Short-circuit if nothing to do.
   //if (l.y === y && l.x === x) return layout;
 
-  const movingUp = y && l.y > y;
+  //const movingUp = y && l.y > y;
   // This is quite a bit faster than extending the object
   if (typeof x === 'number') l.x = x;
   if (typeof y === 'number') l.y = y;
@@ -221,7 +227,7 @@ export function moveElement(layout: Layout, l: LayoutItem, x: Number, y: Number,
   // to ensure, in the case of multiple collisions, that we're getting the
   // nearest collision.
   let sorted = sortLayoutItemsByRowCol(layout);
-  if (movingUp) sorted = sorted.reverse();
+  //if (movingUp) sorted = sorted.reverse();
   const collisions = getAllCollisions(sorted, l);
 
   // Move each item that collides away from this element.
@@ -233,7 +239,7 @@ export function moveElement(layout: Layout, l: LayoutItem, x: Number, y: Number,
     if (collision.moved) continue;
 
     // This makes it feel a bit more precise by waiting to swap for just a bit when moving up.
-    if (l.y > collision.y && l.y - collision.y > collision.h / 4) continue;
+    //if (l.y > collision.y && l.y - collision.y > collision.h / 4) continue;
 
     // Don't move static items - we have to move *this* element away
     if (collision.static) {
@@ -258,7 +264,6 @@ export function moveElement(layout: Layout, l: LayoutItem, x: Number, y: Number,
  */
 export function moveElementAwayFromCollision(layout: Layout, collidesWith: LayoutItem,
                                              itemToMove: LayoutItem, isUserAction: ?boolean): Layout {
-
   // If there is enough space above the collision to put this element, move it there.
   // We only do this on the main collision as this can get funky in cascades and cause
   // unwanted swapping behavior.
@@ -271,15 +276,17 @@ export function moveElementAwayFromCollision(layout: Layout, collidesWith: Layou
       h: itemToMove.h,
       i: '-1'
     };
-    fakeItem.y = Math.max(collidesWith.y - itemToMove.h, 0);
+    //fakeItem.y = Math.max(collidesWith.y - itemToMove.h, 0);
+    //fakeItem.x = Math.max(collidesWith.x - itemToMove.w, 0);
     if (!getFirstCollision(layout, fakeItem)) {
-      return moveElement(layout, itemToMove, undefined, fakeItem.y);
+      //return moveElement(layout, itemToMove, undefined, fakeItem.y);
+      return moveElement(layout, itemToMove, fakeItem.x, undefined);
     }
   }
 
   // Previously this was optimized to move below the collision directly, but this can cause problems
   // with cascading moves, as an item may actually leapflog a collision and cause a reversal in order.
-  return moveElement(layout, itemToMove, undefined, itemToMove.y + 1);
+  return moveElement(layout, itemToMove, itemToMove.x, undefined);
 }
 
 /**

@@ -39,7 +39,7 @@
                     :is-draggable="draggable"
                     :is-resizable="resizable"
                     :is-mirrored="mirrored"
-                    :vertical-compact="true"
+                    :vertical-compact="false"
                     :use-css-transforms="true"
             >
                 <grid-item v-for="item in layout" :key="item.i"
