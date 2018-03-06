@@ -127,6 +127,10 @@ export function compactItem(compareWith: Layout, l: LayoutItem, verticalCompact:
       }
     //l.y = collides.y + collides.h;
   }
+  if (l.x + l.w > cols) {
+      l.x = 0;
+      l.y += 1;
+  }
   return l;
 }
 
@@ -286,7 +290,7 @@ export function moveElementAwayFromCollision(layout: Layout, collidesWith: Layou
 
   // Previously this was optimized to move below the collision directly, but this can cause problems
   // with cascading moves, as an item may actually leapflog a collision and cause a reversal in order.
-  return moveElement(layout, itemToMove, itemToMove.x, undefined);
+  return moveElement(layout, itemToMove, collidesWith.x + collidesWith.w, undefined);
 }
 
 /**
