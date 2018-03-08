@@ -228,7 +228,8 @@
                         this.isDragging = false;
                     });
                 }
-                //console.log(eventName + " id=" + id + ", x=" + x + ", y=" + y);
+                // The x and y values are correct at this point as well
+                console.log(eventName + " id=" + id + ", x=" + x + ", y=" + y);
                 var l = getLayoutItem(this.layout, id);
                 //GetLayoutItem sometimes returns null object
                 if (l === undefined || l === null){
@@ -237,7 +238,8 @@
                 l.x = x;
                 l.y = y;
                 // Move the element to the dragged location.
-                this.layout = moveElement(this.layout, l, x, y, true);
+                // I disabled this - Jake
+                //this.layout = moveElement(this.layout, l, x, y, true);
                 compact(this.layout, this.verticalCompact, this.colNum);
                 // needed because vue can't detect changes on array element properties
                 this.eventBus.$emit("compact");

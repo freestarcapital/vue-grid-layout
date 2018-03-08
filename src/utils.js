@@ -233,6 +233,9 @@ export function moveElement(layout: Layout, l: LayoutItem, x: Number, y: Number,
   let sorted = sortLayoutItemsByRowCol(layout);
   //if (movingUp) sorted = sorted.reverse();
   const collisions = getAllCollisions(sorted, l);
+  if (collisions.length > 0) {
+      console.log('collisions', collisions);
+  }
 
   // Move each item that collides away from this element.
   for (let i = 0, len = collisions.length; i < len; i++) {
@@ -252,7 +255,6 @@ export function moveElement(layout: Layout, l: LayoutItem, x: Number, y: Number,
       layout = moveElementAwayFromCollision(layout, l, collision, isUserAction);
     }
   }
-
   return layout;
 }
 
