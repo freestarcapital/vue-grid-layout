@@ -229,7 +229,6 @@
                     });
                 }
                 // The x and y values are correct at this point as well
-                console.log(eventName + " id=" + id + ", x=" + x + ", y=" + y);
                 var l = getLayoutItem(this.layout, id);
                 //GetLayoutItem sometimes returns null object
                 if (l === undefined || l === null){

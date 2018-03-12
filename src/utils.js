@@ -233,14 +233,11 @@ export function moveElement(layout: Layout, l: LayoutItem, x: Number, y: Number,
   let sorted = sortLayoutItemsByRowCol(layout);
   //if (movingUp) sorted = sorted.reverse();
   const collisions = getAllCollisions(sorted, l);
-  console.log('collisions', collisions);
 
   // Move each item that collides away from this element.
   for (let i = 0, len = collisions.length; i < len; i++) {
     const collision = collisions[i];
 
-    console.log('collision', collision);
-    console.log('l', l);
     // console.log('resolving collision between', l.i, 'at', l.y, 'and', collision.i, 'at', collision.y);
 
     // Short circuit so we can't infinite loop
@@ -293,8 +290,6 @@ export function moveElementAwayFromCollision(layout: Layout, collidesWith: Layou
 
   // Previously this was optimized to move below the collision directly, but this can cause problems
   // with cascading moves, as an item may actually leapflog a collision and cause a reversal in order.
-    console.log('itemToMove', itemToMove);
-    console.log('itemToMove.x', itemToMove.x);
     if (itemToMove.x > collidesWith.x) {
         return moveElement(layout, itemToMove, itemToMove.x, undefined);
     } else {
