@@ -127,6 +127,10 @@ export function compactItem(compareWith: Layout, l: LayoutItem, verticalCompact:
       }
     //l.y = collides.y + collides.h;
   }
+  if (l.x + l.w > cols) {
+      l.x = 0;
+      l.y += 1;
+  }
   return l;
 }
 
@@ -252,7 +256,6 @@ export function moveElement(layout: Layout, l: LayoutItem, x: Number, y: Number,
       layout = moveElementAwayFromCollision(layout, l, collision, cols, isUserAction);
     }
   }
-
   return layout;
 }
 
