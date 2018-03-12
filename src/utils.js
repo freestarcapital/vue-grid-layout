@@ -210,7 +210,7 @@ export function getStatics(layout: Layout): Array<LayoutItem> {
  * @param  {Boolean}    [isUserAction] If true, designates that the item we're moving is
  *                                     being dragged/resized by th euser.
  */
-export function moveElement(layout: Layout, l: LayoutItem, x: Number, y: Number, isUserAction: Boolean): Layout {
+export function moveElement(layout: Layout, l: LayoutItem, x: Number, y: Number, cols: number, isUserAction: Boolean): Layout {
   if (l.static) return layout;
 
   // Short-circuit if nothing to do.
@@ -247,9 +247,9 @@ export function moveElement(layout: Layout, l: LayoutItem, x: Number, y: Number,
 
     // Don't move static items - we have to move *this* element away
     if (collision.static) {
-      layout = moveElementAwayFromCollision(layout, collision, l, isUserAction);
+      layout = moveElementAwayFromCollision(layout, collision, l, cols, isUserAction);
     } else {
-      layout = moveElementAwayFromCollision(layout, l, collision, isUserAction);
+      layout = moveElementAwayFromCollision(layout, l, collision, cols, isUserAction);
     }
   }
 
@@ -267,7 +267,7 @@ export function moveElement(layout: Layout, l: LayoutItem, x: Number, y: Number,
  *                                   by the user.
  */
 export function moveElementAwayFromCollision(layout: Layout, collidesWith: LayoutItem,
-                                             itemToMove: LayoutItem, isUserAction: ?boolean): Layout {
+                                             itemToMove: LayoutItem, cols: number, isUserAction: ?boolean): Layout {
   // If there is enough space above the collision to put this element, move it there.
   // We only do this on the main collision as this can get funky in cascades and cause
   // unwanted swapping behavior.
@@ -294,7 +294,11 @@ export function moveElementAwayFromCollision(layout: Layout, collidesWith: Layou
     console.log('itemToMove.x', itemToMove.x);
     if (itemToMove.x > collidesWith.x) {
         return moveElement(layout, itemToMove, itemToMove.x, undefined);
-    } return moveElement(layout, itemToMove, collidesWith.x + collidesWith.w, undefined);
+    } else {
+        const moveX = collidesWith.x + collidesWith.w + itemToMove.w <= cols ? collidesWith.x + collidesWith.w : 0;
+        const moveY = moveX ? undefined : itemToMove.y + 1;
+        return moveElement(layout, itemToMove, moveX, moveY);
+    }
 }
 
 /**
