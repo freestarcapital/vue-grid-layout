@@ -214,7 +214,7 @@ export function getStatics(layout: Layout): Array<LayoutItem> {
  * @param  {Boolean}    [isUserAction] If true, designates that the item we're moving is
  *                                     being dragged/resized by th euser.
  */
-export function moveElement(layout: Layout, l: LayoutItem, x: Number, y: Number, isUserAction: Boolean): Layout {
+export function moveElement(layout: Layout, l: LayoutItem, x: Number, y: Number, cols: number, isUserAction: Boolean): Layout {
   if (l.static) return layout;
 
   // Short-circuit if nothing to do.
@@ -237,6 +237,7 @@ export function moveElement(layout: Layout, l: LayoutItem, x: Number, y: Number,
   // Move each item that collides away from this element.
   for (let i = 0, len = collisions.length; i < len; i++) {
     const collision = collisions[i];
+
     // console.log('resolving collision between', l.i, 'at', l.y, 'and', collision.i, 'at', collision.y);
 
     // Short circuit so we can't infinite loop
@@ -247,12 +248,11 @@ export function moveElement(layout: Layout, l: LayoutItem, x: Number, y: Number,
 
     // Don't move static items - we have to move *this* element away
     if (collision.static) {
-      layout = moveElementAwayFromCollision(layout, collision, l, isUserAction);
+      layout = moveElementAwayFromCollision(layout, collision, l, cols, isUserAction);
     } else {
-      layout = moveElementAwayFromCollision(layout, l, collision, isUserAction);
+      layout = moveElementAwayFromCollision(layout, l, collision, cols, isUserAction);
     }
   }
-
   return layout;
 }
 
@@ -267,7 +267,7 @@ export function moveElement(layout: Layout, l: LayoutItem, x: Number, y: Number,
  *                                   by the user.
  */
 export function moveElementAwayFromCollision(layout: Layout, collidesWith: LayoutItem,
-                                             itemToMove: LayoutItem, isUserAction: ?boolean): Layout {
+                                             itemToMove: LayoutItem, cols: number, isUserAction: ?boolean): Layout {
   // If there is enough space above the collision to put this element, move it there.
   // We only do this on the main collision as this can get funky in cascades and cause
   // unwanted swapping behavior.
@@ -290,7 +290,13 @@ export function moveElementAwayFromCollision(layout: Layout, collidesWith: Layou
 
   // Previously this was optimized to move below the collision directly, but this can cause problems
   // with cascading moves, as an item may actually leapflog a collision and cause a reversal in order.
-  return moveElement(layout, itemToMove, collidesWith.x + collidesWith.w, undefined);
+    if (itemToMove.x > collidesWith.x) {
+        return moveElement(layout, itemToMove, itemToMove.x, undefined);
+    } else {
+        const moveX = collidesWith.x + collidesWith.w + itemToMove.w <= cols ? collidesWith.x + collidesWith.w : 0;
+        const moveY = moveX ? undefined : itemToMove.y + 1;
+        return moveElement(layout, itemToMove, moveX, moveY);
+    }
 }
 
 /**

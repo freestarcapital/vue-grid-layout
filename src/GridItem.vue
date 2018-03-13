@@ -573,6 +573,8 @@
                     var pos = this.calcXY(newPosition.top, newPosition.left);
                 }
 
+                // This value is correct when the tile overlaps the previous tile. The issue probably occurs after this point.
+
                 this.lastX = x;
                 this.lastY = y;
 
