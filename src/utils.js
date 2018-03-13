@@ -299,8 +299,8 @@ export function moveElementAwayFromCollision(layout: Layout, collidesWith: Layou
     } else {
         const moveX = collidesWith.x + collidesWith.w + itemToMove.w <= cols ? collidesWith.x + collidesWith.w : 0;
         const moveY = moveX ? undefined : itemToMove.y + 1;
-        console.log('moveX');
-        console.log('moveY');
+        console.log('moveX', moveX);
+        console.log('moveY', moveX);
         return moveElement(layout, itemToMove, moveX, moveY);
     }
 }
