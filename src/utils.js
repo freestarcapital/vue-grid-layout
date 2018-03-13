@@ -268,6 +268,10 @@ export function moveElement(layout: Layout, l: LayoutItem, x: Number, y: Number,
  */
 export function moveElementAwayFromCollision(layout: Layout, collidesWith: LayoutItem,
                                              itemToMove: LayoutItem, cols: number, isUserAction: ?boolean): Layout {
+    console.log('moveElementAwayFromCollision');
+    console.log('itemToMove', itemToMove);
+    console.log('collidesWith', collidesWith);
+    console.log('cols', cols);
   // If there is enough space above the collision to put this element, move it there.
   // We only do this on the main collision as this can get funky in cascades and cause
   // unwanted swapping behavior.
@@ -295,6 +299,8 @@ export function moveElementAwayFromCollision(layout: Layout, collidesWith: Layou
     } else {
         const moveX = collidesWith.x + collidesWith.w + itemToMove.w <= cols ? collidesWith.x + collidesWith.w : 0;
         const moveY = moveX ? undefined : itemToMove.y + 1;
+        console.log('moveX');
+        console.log('moveY');
         return moveElement(layout, itemToMove, moveX, moveY);
     }
 }
